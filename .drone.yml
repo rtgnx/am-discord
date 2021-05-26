@@ -1,0 +1,32 @@
+kind: pipeline
+name: am-discord
+
+
+steps:
+  - name: Run tests and build
+    image: golang:latest
+    commands:
+      - go fmt
+      - go vet
+      - go test
+      - go build
+    when:
+      branch:
+        - develop
+        - master
+
+  - name: Build image and publish
+    image: plugins/docker
+    settings:
+      repo: rg.nl-ams.scw.cloud/revlabs/am-discord
+      username: nologin
+      password:
+        from_secret: SCW_SECRET_KEY
+      registry: rg.nl-ams.scw.cloud/revlabs
+      autotag: true
+    when:
+      event:
+        - push
+        - tag
+      branch:
+        - master
